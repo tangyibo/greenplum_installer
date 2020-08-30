@@ -1,0 +1,8 @@
+---
+
+- version: "6.6.0"
+- greenplum_admin_user: "gpadmin"
+- greenplum_install_directory: "/usr/local"
+- greenplum_data_directory: "/usr/local/gpdb/data"
+# - greenplum_admin_password: "gpadmin"
+# - package_path: passed via the command line with: -e package_path=./greenplum-db-6.6.0-rhel7-x86_64.rpm

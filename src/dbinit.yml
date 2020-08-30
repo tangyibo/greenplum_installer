@@ -1,0 +1,49 @@
+#!/usr/bin/env ansible-playbook
+---
+
+- hosts: all
+  vars_files:
+    - vars/gpdb.yml
+  remote_user: root
+  become: yes
+  become_method: sudo
+  connection: ssh
+  gather_facts: yes
+  tasks:
+    - name: 31. copy files for initialize greenplum master
+      copy:
+        src: '{{ item }}'
+        dest: '/home/{{ greenplum_admin_user }}/'
+        remote_src: no
+      with_items:
+        - gpnodes/gpadmin_hosts
+        - template/gpadmin_auto_ssh.sh
+        - template/initdb_gpdb.sql
+    - name: 32. replace greenplum admin user environment bash file
+      template: src=template/gpadmin_bashrc.j2 dest=/home/{{ greenplum_admin_user }}/.bashrc
+    - name: 33. copy and configure gpinitsystem config file
+      template: src=template/gpinitsystem_config.j2 dest=/home/{{ greenplum_admin_user }}/gpinitsystem_config
+    - name: 34. change data directory ownership
+      file:
+        path: '/home/{{ greenplum_admin_user }}/'
+        owner: '{{ greenplum_admin_user }}'
+        group: '{{ greenplum_admin_user }}'
+        recurse: yes
+    - name: 35. configure greenplum admin user auto login
+      command: sh /home/{{ greenplum_admin_user }}/gpadmin_auto_ssh.sh /home/{{ greenplum_admin_user }}/gpadmin_hosts
+      become: yes
+      become_user: '{{ greenplum_admin_user }}'
+    - name: 36. initialize greenplum master database
+      shell: '{{ item }}'
+      become: yes
+      become_method: su
+      become_flags: '-'
+      become_user: '{{ greenplum_admin_user }}'
+      with_items:
+        - "gpinitsystem -a -c /home/{{ greenplum_admin_user }}/gpinitsystem_config -h /home/{{ greenplum_admin_user }}/segment_hosts -s smdw"
+        - "psql -d postgres -U gpadmin -f /home/{{ greenplum_admin_user }}/initdb_gpdb.sql"
+        - "echo \"host  all  all  0.0.0.0/0  password\" >> {{ greenplum_data_directory }}/master/gpseg-1/pg_hba.conf"
+        - "gpconfig -c log_statement -v none"
+        - "gpconfig -c gp_enable_global_deadlock_detector -v on"
+        - "gpstop -u"
+

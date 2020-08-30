@@ -1,0 +1,43 @@
+#!/usr/bin/env ansible-playbook
+---
+
+- hosts: all
+  vars_files:
+    - vars/gpdb.yml
+  remote_user: root
+  become: yes
+  become_method: sudo
+  connection: ssh
+  tasks:
+  - name: 01. kill user [{{ greenplum_admin_user }}] all process
+    shell: "pkill -u {{ greenplum_admin_user }}"
+    ignore_errors: true
+  - name: 02. remove tmp files in tmp directory
+    file: 
+      path: /tmp/.s.PGSQL.* 
+      state: absent
+  - name: 03. erase greenplum package
+    yum:
+      name: greenplum-db
+      state: absent
+  - name: 04. delete greenplum install and data files
+    file:
+      path: '{{ item }}'
+      state: absent
+    with_items:
+      - '/home/{{ greenplum_admin_user }}/all_hosts'
+      - '/home/{{ greenplum_admin_user }}/all_ips'
+      - '/home/{{ greenplum_admin_user }}/master_hosts'
+      - '/home/{{ greenplum_admin_user }}/standby_hosts'
+      - '/home/{{ greenplum_admin_user }}/segment_hosts'
+      - '/home/{{ greenplum_admin_user }}/gpadmin_hosts'
+      - '/home/{{ greenplum_admin_user }}/gpadmin_auto_ssh.sh'
+      - '/home/{{ greenplum_admin_user }}/gpinitsystem_config'
+      - '{{ greenplum_data_directory }}'
+      - '{{ greenplum_install_directory }}/greenplum-db'
+      - '{{ greenplum_install_directory }}/greenplum-db-{{ version }}'
+      - '/home/{{ greenplum_admin_user }}'
+  - name: 05. delete greenplum user
+    user:
+      name: "{{ greenplum_admin_user }}"
+      state: absent
