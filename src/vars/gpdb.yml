@@ -1,6 +1,6 @@
 ---
 
-- version: "6.6.0"
+- version: "6.10.1"
 - greenplum_admin_user: "gpadmin"
 - greenplum_install_directory: "/usr/local"
 - greenplum_data_directory: "/usr/local/gpdb/data"
