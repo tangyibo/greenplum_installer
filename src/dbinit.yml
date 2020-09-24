@@ -10,7 +10,7 @@
   connection: ssh
   gather_facts: yes
   tasks:
-    - name: 31. copy files for initialize greenplum master
+    - name: 33. copy files for initialize greenplum master
       copy:
         src: '{{ item }}'
         dest: '/home/{{ greenplum_admin_user }}/'
@@ -19,21 +19,21 @@
         - gpnodes/gpadmin_hosts
         - template/gpadmin_auto_ssh.sh
         - template/initdb_gpdb.sql
-    - name: 32. replace greenplum admin user environment bash file
+    - name: 34. replace greenplum admin user environment bash file
       template: src=template/gpadmin_bashrc.j2 dest=/home/{{ greenplum_admin_user }}/.bashrc
-    - name: 33. copy and configure gpinitsystem config file
+    - name: 35. copy and configure gpinitsystem config file
       template: src=template/gpinitsystem_config.j2 dest=/home/{{ greenplum_admin_user }}/gpinitsystem_config
-    - name: 34. change data directory ownership
+    - name: 36. change data directory ownership
       file:
         path: '/home/{{ greenplum_admin_user }}/'
         owner: '{{ greenplum_admin_user }}'
         group: '{{ greenplum_admin_user }}'
         recurse: yes
-    - name: 35. configure greenplum admin user auto login
-      command: sh /home/{{ greenplum_admin_user }}/gpadmin_auto_ssh.sh /home/{{ greenplum_admin_user }}/gpadmin_hosts
+    - name: 37. configure greenplum admin user auto login
+      shell: sh /home/{{ greenplum_admin_user }}/gpadmin_auto_ssh.sh /home/{{ greenplum_admin_user }}/gpadmin_hosts
       become: yes
       become_user: '{{ greenplum_admin_user }}'
-    - name: 36. initialize greenplum master database
+    - name: 38. initialize greenplum master database
       shell: '{{ item }}'
       become: yes
       become_method: su
@@ -46,4 +46,3 @@
         - "gpconfig -c log_statement -v none"
         - "gpconfig -c gp_enable_global_deadlock_detector -v on"
         - "gpstop -u"
-

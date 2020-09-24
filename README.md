@@ -20,12 +20,6 @@
 
 ### 2、服务器上安装：
 
-首先，需要修改每台机器的操作系统/etc/ssh/sshd_config的StrictModes参数的值(通常默认值为yes)，将其设置为：
-```
-StrictModes no
-```
-
-然后，在其中的一台机器上执行如下命令安装：
 ```
 [root@localhost root]# tree .
 .

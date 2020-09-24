@@ -4,12 +4,6 @@
 # Author : tang
 # Date : 2020-04-21
 #
-# cat account.txt
-# 172.17.207.244 root password
-# 172.17.207.246 root password
-# 172.17.207.247 root password
-# 172.17.207.248 root password
-#
 ############################################
 
 # 命令行参数校验

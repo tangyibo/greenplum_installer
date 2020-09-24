@@ -10,76 +10,89 @@
   connection: ssh
   gather_facts: yes
   tasks:
-    - name: 01. stop and disable firewall service
+    - name:  "01. modify sshd config file"
+      lineinfile:
+        path:  /etc/ssh/sshd_config
+        regexp:  '{{ item.regexp }}'
+        line:  '{{ item.line }}'
+        state: present
+      with_items:
+      - regexp:  "^StrictModes yes"
+        line:  "StrictModes no"
+      - regexp:  "^#StrictModes yes"
+        line:  "StrictModes no"
+      notify:
+      - restart sshd service
+    - name: 02. stop and disable firewall service
       shell: '{{ item }}'
       with_items:
         - 'systemctl unmask firewalld'
         - 'systemctl start firewalld.service'
         - 'systemctl stop firewalld.service'
         - 'systemctl disable firewalld.service'
-    - name: 02. be sure expect is installed
+    - name: 03. be sure expect is installed
       yum: name=expect state=installed
-    - name: 03. close selinux temporary
+    - name: 04. close selinux temporary
       shell: setenforce 0
       failed_when: false
-    - name: 04. close selinux forever
+    - name: 05. close selinux forever
       when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
       lineinfile:
         dest: /etc/selinux/config
         regexp: '^SELINUX='
         line: 'SELINUX=disabled'
-    - name: 05. be sure ntp is installed
+    - name: 06. be sure ntp is installed
       yum: name=ntp state=installed
       tags: ntp
-    - name: 06. configure sync time using aliyun server
+    - name: 07. configure sync time using aliyun server
       when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
       cron: name="sync time" minute='*/5' hour=* day=* month=* weekday=* job="/usr/sbin/ntpdate -u ntp1.aliyun.com >/dev/null 2>&1"
       ignore_errors: true
-    - name: 07. update configure file for etc-hosts
+    - name: 08. update configure file for etc-hosts
       copy: src=gpnodes/hosts dest=/etc/hosts
-    - name: 08. change host name to etc-hostname
+    - name: 09. change host name to etc-hostname
       raw: 'echo {{hostname|quote}} > /etc/hostname'
-    - name: 09. change host name by command hostname
+    - name: 10. change host name by command hostname
       shell: hostname {{hostname|quote}}
-    - name: 10. create greenplum admin user
+    - name: 11. create greenplum admin user
       user:
         name: '{{ greenplum_admin_user }}'
         password: "{{ greenplum_admin_password | password_hash('sha512') }}"
-    - name: 11. copy greeplum rpm package to host
+    - name: 12. copy greeplum rpm package to host
       copy:
         src: '{{ package_path }}'
         dest: /tmp
-    - name: 12. backing up sysctl
+    - name: 13. backing up sysctl
       copy:
         src: /etc/sysctl.conf
         remote_src: yes
         dest: /tmp/sysctl.conf.bak
         backup: yes
-    - name: 13. get shmall 
+    - name: 14. get shmall 
       shell: echo $(expr $(getconf _PHYS_PAGES) / 2) 
       register: shmall
-    - name: 14. get shmmax
+    - name: 15. get shmmax
       shell: echo $(expr $(getconf _PHYS_PAGES) / 2 \* $(getconf PAGE_SIZE))
       register: shmmax
-    - name: 15. get min_free_kbytes
+    - name: 16. get min_free_kbytes
       shell: awk 'BEGIN {OFMT = "%.0f";} /MemTotal/ {print $2 * .03;}' /proc/meminfo
       register: min_free_kbytes
-    - name: 16. set shmall
+    - name: 17. set shmall
       sysctl:
         name: kernel.shmall
         value: '{{ shmall.stdout }}'
         reload: yes
-    - name: 17. set shmmax
+    - name: 18. set shmmax
       sysctl:
         name: kernel.shmmax
         value: '{{ shmmax.stdout }}'
         reload: yes
-    - name: 18. set min_free_kbytes
+    - name: 19. set min_free_kbytes
       sysctl:
         name: vm.min_free_kbytes
         value: '{{ min_free_kbytes.stdout }}'
         reload: yes
-    - name: 19. configure sysctl
+    - name: 20. configure sysctl
       sysctl:
         name: '{{ item.key }}'
         value: '{{ item.value }}'
@@ -113,7 +126,7 @@
         vm.dirty_ratio: 20
         vm.dirty_background_bytes: 0
         vm.dirty_bytes: 0 
-    - name: 20. state PAM limits
+    - name: 21. state PAM limits
       pam_limits:
         domain: '*'
         limit_type: '-'
@@ -124,29 +137,29 @@
         nproc: 655360
         memlock: unlimited
         core: unlimited
-    - name: 21. install package
+    - name: 22. install package
       yum:
         name: '/tmp/{{ package_path | basename }}'
         # installroot: '{{ greenplum_install_directory }}'
         state: present
-    - name: 22. cleanup package file from host
+    - name: 23. cleanup package file from host
       file:
         path: '/tmp/{{ package_path | basename }}'
         state: absent
-    - name: 23. find install directory
+    - name: 24. find install directory
       find:
         paths: '{{ greenplum_install_directory }}'
         patterns: 'greenplum-db*'
         file_type: directory
       register: installed_dir
-    - name: 24. change install directory ownership
+    - name: 25. change install directory ownership
       file:
         path: '{{ item.path }}'
         owner: '{{ greenplum_admin_user }}'
         group: '{{ greenplum_admin_user }}'
         recurse: yes
       with_items: '{{ installed_dir.files }}'
-    - name: 25. update pam_limits
+    - name: 26. update pam_limits
       pam_limits:
         domain: '{{ greenplum_admin_user }}'
         limit_type: '-'
@@ -155,14 +168,14 @@
       with_dict:
         nofile: 524288
         nproc: 131072
-    - name: 26. find installed greenplum version
+    - name: 27. find installed greenplum version
       shell: . '{{ greenplum_install_directory }}'/greenplum-db/greenplum_path.sh && '{{ greenplum_install_directory }}'/greenplum-db/bin/postgres --gp-version
       register: postgres_gp_version
-    - name: 27. fail if the correct greenplum version is not installed
+    - name: 28. fail if the correct greenplum version is not installed
       fail:
         msg: "Expected greenplum version {{ version }}, but found '{{ postgres_gp_version.stdout }}'"
       when: "version is not defined or version not in postgres_gp_version.stdout"
-    - name: 28. Create data directory if it does not exist
+    - name: 29. Create data directory if it does not exist
       file:
         path: '{{ item }}'
         state: directory
@@ -172,7 +185,7 @@
         - '{{ greenplum_data_directory }}/master/'
         - '{{ greenplum_data_directory }}/primary/'
         - '{{ greenplum_data_directory }}/mirror/'
-    - name: 29. copy greenplum node temporary files
+    - name: 30. copy greenplum node temporary files
       copy:
         src: '{{ item }}'
         dest: '/home/{{ greenplum_admin_user }}/'
@@ -183,9 +196,21 @@
         - gpnodes/master_hosts
         - gpnodes/standby_hosts
         - gpnodes/segment_hosts
-    - name: 30. change data directory ownership
+    - name: 31. change user {{ greenplum_admin_user }} home files ownership
+      file:
+        path: '/home/{{ greenplum_data_directory }}'
+        owner: '{{ greenplum_admin_user }}'
+        group: '{{ greenplum_admin_user }}'
+        recurse: yes
+    - name: 32. change data directory ownership
       file:
         path: '{{ greenplum_data_directory }}'
         owner: '{{ greenplum_admin_user }}'
         group: '{{ greenplum_admin_user }}'
         recurse: yes
+
+  handlers:
+    - name: restart sshd service
+      service:
+        name: sshd
+        state: restarted
