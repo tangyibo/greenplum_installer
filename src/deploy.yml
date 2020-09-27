@@ -22,7 +22,7 @@
       - regexp:  "^#StrictModes yes"
         line:  "StrictModes no"
       notify:
-      - restart sshd service
+        - restart sshd service
     - name: 02. stop and disable firewall service
       shell: '{{ item }}'
       with_items:
