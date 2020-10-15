@@ -40,7 +40,7 @@
       become_flags: '-'
       become_user: '{{ greenplum_admin_user }}'
       with_items:
-        - "gpinitsystem -a -c /home/{{ greenplum_admin_user }}/gpinitsystem_config -h /home/{{ greenplum_admin_user }}/segment_hosts -s smdw"
+        - "gpinitsystem -a --ignore-warnings -c /home/{{ greenplum_admin_user }}/gpinitsystem_config -h /home/{{ greenplum_admin_user }}/segment_hosts -s smdw"
         - "psql -d postgres -U gpadmin -f /home/{{ greenplum_admin_user }}/initdb_gpdb.sql"
         - "echo \"host  all  all  0.0.0.0/0  password\" >> {{ greenplum_data_directory }}/master/gpseg-1/pg_hba.conf"
         - "gpconfig -c log_statement -v none"

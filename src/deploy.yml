@@ -105,7 +105,7 @@
         vm.overcommit_memory: 2
         vm.overcommit_ratio: 95
         net.ipv4.ip_local_port_range: 10000 65535
-        kernel.sem: 500 2048000 200 40960
+        kernel.sem: 500 2048000 200 32767
         kernel.sysrq: 1
         kernel.core_uses_pid: 1
         kernel.msgmnb: 65536
