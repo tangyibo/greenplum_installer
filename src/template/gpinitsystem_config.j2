@@ -22,10 +22,10 @@ PORT_BASE=6000
 #### physical host (if multiple addresses for a host are listed in 
 #### the hostfile, the number of segments will be spread evenly across
 #### the specified interface addresses).
-declare -a DATA_DIRECTORY=({{ greenplum_data_directory }}/primary {{ greenplum_data_directory }}/primary {{ greenplum_data_directory }}/primary {{ greenplum_data_directory }}/primary {{ greenplum_data_directory }}/primary {{ greenplum_data_directory }}/primary)
+declare -a DATA_DIRECTORY=( {{ primary_path_all.stdout }} )
 
 #### OS-configured hostname or IP address of the master host.
-MASTER_HOSTNAME=mdw
+MASTER_HOSTNAME={{ greenplum_master_node_hostname }}
 
 #### File system location where the master data directory 
 #### will be created.
@@ -55,7 +55,7 @@ MIRROR_PORT_BASE=7000
 #### will be created. The number of mirror locations must equal the
 #### number of primary locations as specified in the 
 #### DATA_DIRECTORY parameter.
-declare -a MIRROR_DATA_DIRECTORY=({{ greenplum_data_directory }}/mirror {{ greenplum_data_directory }}/mirror {{ greenplum_data_directory }}/mirror {{ greenplum_data_directory }}/mirror {{ greenplum_data_directory }}/mirror {{ greenplum_data_directory }}/mirror)
+declare -a MIRROR_DATA_DIRECTORY=({{ mirror_path_all.stdout }} )
 
 
 ################################################

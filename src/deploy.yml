@@ -137,16 +137,16 @@
         nproc: 655360
         memlock: unlimited
         core: unlimited
-    - name: 22. install package
+    - name: 22. install greenplum rpm package
       yum:
         name: '/tmp/{{ package_path | basename }}'
         # installroot: '{{ greenplum_install_directory }}'
         state: present
-    - name: 23. cleanup package file from host
+    - name: 23. cleanup greenplum package file from host
       file:
         path: '/tmp/{{ package_path | basename }}'
         state: absent
-    - name: 24. find install directory
+    - name: 24. find greenplum install directory
       find:
         paths: '{{ greenplum_install_directory }}'
         patterns: 'greenplum-db*'
