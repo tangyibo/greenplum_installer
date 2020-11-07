@@ -10,6 +10,13 @@
   connection: ssh
   gather_facts: yes
   tasks:
+    - name: "00. check whether can connect internet"
+      shell: |
+        ping -c 1 -w 1 www.baidu.com > /dev/null; \
+        if [ $? -ne 0 ]; then \
+           echo "[ERROR]: host can not connect internet world!"; \
+           exit 1; \
+        fi
     - name:  "01. modify sshd config file"
       lineinfile:
         path:  /etc/ssh/sshd_config
