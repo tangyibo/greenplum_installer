@@ -30,4 +30,10 @@ ansible-playbook ./deploy.yml -i $TMP_GP_ALL_IPS_FILE -e greenplum_admin_passwor
 # Master节点配置
 if [ $? -eq 0 ];then
    ansible-playbook ./dbinit.yml -i $TMP_GP_MASTER_IP_FILE
+      if [ $? -eq 0 ];then
+      echo "[INFO]: Success for install greenplum cluster!."
+      exit 0
+   fi
 fi
+
+echo "[ERRPR]: Failed for install greenplum cluster, Please check log above, and retry install after uninstall operation!."
