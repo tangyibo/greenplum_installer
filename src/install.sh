@@ -9,7 +9,7 @@
 ######################################################
 
 # Greenplum的RPM安装包路径
-RPM_FILE_NAME=files/greenplum-db-6.10.1-rhel7-x86_64.rpm
+RPM_FILE_NAME=files/greenplum-db-6.12.1-rhel7-x86_64.rpm
 # 安装主机节点配置列表
 TXT_FILE_NAME=$1
 # Greenplum主机管理员账号密码

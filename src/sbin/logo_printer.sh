@@ -9,8 +9,8 @@
 ############################################
 
 # 发布时间设置
-PUBLISH_DATE=2020-09-08
-VERSION_CODE=1.1
+PUBLISH_DATE=2020-12-02
+VERSION_CODE=1.2
 AUTHOR_NAME=tang
 CONTACT_ADDR=inrgihc@126.com
 
@@ -38,7 +38,7 @@ echo ' Write Author  : '$AUTHOR_NAME'  '
 echo ' Contact Email : '$CONTACT_ADDR'  '
 echo ' Copyright @ tang reserved!'
 echo ''
-echo ' Refrence Address: https://gpdb.docs.pivotal.io/6-10/install_guide/prep_os.html'
+echo ' Refrence Address: https://gpdb.docs.pivotal.io/6-12/install_guide/prep_os.html'
 echo ''
 echo ' Install time: '$now_time ' '
 echo ''

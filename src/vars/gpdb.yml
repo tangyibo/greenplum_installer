@@ -1,7 +1,7 @@
 ---
 
 # greenplum 的版本h号(需要与files/目录下的rpm安装包对应)
-- version: "6.10.1"
+- version: "6.12.1"
 
 # greenplum的master节点的主机名称
 - greenplum_master_node_hostname: 'mdw'
