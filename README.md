@@ -10,7 +10,7 @@
 ### 1、制作安装bin包：
 
 ```
-[root@localhost root]# git clone https://gitee.com/inrgihc/greenplum_installer.git
+[root@localhost root]# git clone -b 6.10.1 https://gitee.com/inrgihc/greenplum_installer.git
 [root@localhost root]# cd greenplum_installer && make all
 [root@localhost root]# tree bin/
 .
