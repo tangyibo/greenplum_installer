@@ -5,6 +5,14 @@
 
 **基于ansible自动化运维工具提供Greenplum6.10.1数据库多节点在CentOS7系统下的一键安装部署功能。**
 
+**注：支持多个物理主机或虚拟主机的安装，不支持容器（docker/podman）等环境的安装**
+
+**托管地址：**
+
+- github: https://github.com/tangyibo/greenplum_installer
+
+- gitee: https://gitee.com/inrgihc/greenplum_installer
+
 ## 二、安装教程
 
 ### 1、制作安装bin包：
