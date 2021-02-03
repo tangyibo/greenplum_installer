@@ -27,6 +27,7 @@ for ((i = 0; i < ${#HOSTSADDR[@]}; i++)); do
 
   (
     expect <<EOF
+                set timeout 180
                 spawn ssh $user_name@$ip "rm -rf  ~/.ssh; ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa -q"
                 expect {
                         "yes/no" { send "yes\n";exp_continue}     
@@ -50,6 +51,7 @@ for ((i = 0; i < ${#HOSTSADDR[@]}; i++)); do
   TMP_FILE="./.id_rsa.pub.$ip.tmp"
   (
     expect <<EOF
+                set timeout 180
                 spawn scp $user_name@$ip:~/.ssh/id_rsa.pub  $TMP_FILE
                 expect {
                         "yes/no" { send "yes\n";exp_continue}     
@@ -78,6 +80,7 @@ for ((i = 0; i < ${#HOSTSADDR[@]}; i++)); do
 
   (
     expect <<EOF
+                set timeout 180
                 spawn $CMD  
                 expect {
                         "yes/no" { send "yes\n";exp_continue}     
