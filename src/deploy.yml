@@ -205,7 +205,7 @@
         - gpnodes/segment_hosts
     - name: 31. change user {{ greenplum_admin_user }} home files ownership
       file:
-        path: '/home/{{ greenplum_data_directory }}'
+        path: '/home/{{ greenplum_admin_user }}'
         owner: '{{ greenplum_admin_user }}'
         group: '{{ greenplum_admin_user }}'
         recurse: yes

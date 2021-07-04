@@ -21,6 +21,7 @@
 echo "[INFO]: call ssh-keygen to generate key..."
 for ((i = 0; i < ${#HOSTSADDR[@]}; i++)); do
   ip=${HOSTSADDR[$i]}
+  port=${HOSTSPORT[$i]}
   user_name=${USERNAMES[$i]}
   pass_word=${PASSWORDS[$i]}
   #echo "IP:$ip    User:$user_name   Password:$pass_word"
@@ -28,7 +29,7 @@ for ((i = 0; i < ${#HOSTSADDR[@]}; i++)); do
   (
     expect <<EOF
                 set timeout 180
-                spawn ssh $user_name@$ip "rm -rf  ~/.ssh; ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa -q"
+                spawn ssh -p $port  $user_name@$ip "rm -rf  ~/.ssh; ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa -q"
                 expect {
                         "yes/no" { send "yes\n";exp_continue}     
                         "password" { send "$pass_word\n"}
@@ -52,7 +53,7 @@ for ((i = 0; i < ${#HOSTSADDR[@]}; i++)); do
   (
     expect <<EOF
                 set timeout 180
-                spawn scp $user_name@$ip:~/.ssh/id_rsa.pub  $TMP_FILE
+                spawn scp -P $port $user_name@$ip:~/.ssh/id_rsa.pub  $TMP_FILE
                 expect {
                         "yes/no" { send "yes\n";exp_continue}     
                         "password" { send "$pass_word\n"}
@@ -73,7 +74,7 @@ for ((i = 0; i < ${#HOSTSADDR[@]}; i++)); do
   pass_word=${PASSWORDS[$i]}
   #echo "IP:$ip    User:$user_name   Password:$pass_word"
 
-  CMD="scp /root/.ssh/authorized_keys root@$ip:/root/.ssh/authorized_keys"
+  CMD="scp -P $port /root/.ssh/authorized_keys root@$ip:/root/.ssh/authorized_keys"
   if [ "$user_name" != "root" ]; then
     CMD="scp /home/$user_name/.ssh/authorized_keys $user_name@$ip:/home/$user_name/.ssh/authorized_keys"
   fi

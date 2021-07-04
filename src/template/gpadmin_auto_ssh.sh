@@ -17,6 +17,7 @@ fi
 
 # 读取配置文件
 HOSTSADDR=()
+HOSTSPORT=()
 USERNAMES=()
 PASSWORDS=()
 while read line; do
@@ -24,7 +25,26 @@ while read line; do
                 break 1
         fi
 
-        ip=$(echo $line | cut -d " " -f1)        # 提取文件中的ip地址
+        ip_port=$(echo $line | cut -d " " -f1)   # 提取文件中的ip地址和port端口
+
+        if [ ! -n "$ip_port" ]; then
+                echo "[ERROR]: File content format error,reason get [ip address and port number] empty"
+                exit 1
+        fi
+
+        ip_port_str_array=(${ip_port//:/ }) 
+        len_ip_port_str_array=${#ip_port_str_array[@]}
+        if [ "$len_ip_port_str_array" -eq "1" ]; then     
+                ip=${ip_port_str_array[0]}          # 提取文件中的ip地址
+                port="22"                           # 提取文件中的port端口(不写默认为22端口)
+        elif  [ "$len_ip_port_str_array" -eq "2" ]; then
+                ip=${ip_port_str_array[0]}          # 提取文件中的ip地址
+                port=${ip_port_str_array[1]}        # 提取文件中的port端口
+        else
+                echo "[ERROR]: File content format error,reason parse [ip address and port number] invalid"
+                exit 1
+        fi
+
         user_name=$(echo $line | cut -d " " -f2) # 提取文件中的用户名
         pass_word=$(echo $line | cut -d " " -f3) # 提取文件中的密码
         #echo "IP:$ip    User:$user_name   Password:$pass_word"
@@ -48,6 +68,7 @@ while read line; do
         fi
 
         HOSTSADDR[${#HOSTSADDR[*]}]=$ip
+        HOSTSPORT[${#HOSTSPORT[*]}]=$port
         USERNAMES[${#USERNAMES[*]}]=$user_name
         PASSWORDS[${#PASSWORDS[*]}]=$pass_word
 done <$FILENAME
@@ -59,13 +80,14 @@ done <$FILENAME
 echo "#### [1] call ssh-keygen to generate key..."
 for ((i = 0; i < ${#HOSTSADDR[@]}; i++)); do
         ip=${HOSTSADDR[$i]}
+        port=${HOSTSPORT[$i]}
         user_name=${USERNAMES[$i]}
         pass_word=${PASSWORDS[$i]}
         echo "IP:$ip    User:$user_name   Password:$pass_word"
 
         expect <<EOF
                 set timeout 180
-                spawn ssh $user_name@$ip "rm -rf  ~/.ssh; ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa -q"
+                spawn ssh -p $port $user_name@$ip "rm -rf  ~/.ssh; ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa -q"
                 expect {
                         "yes/no" { send "yes\n";exp_continue}     
                         "password" { send "$pass_word\n"}
@@ -80,14 +102,15 @@ echo "#### [2] copy remote public key to local..."
 TMP_AUTHORIZED_KEYS="./.id_rsa.pub.$ip.tmp"
 for ((i = 0; i < ${#HOSTSADDR[@]}; i++)); do
         ip=${HOSTSADDR[$i]}
+        port=${HOSTSPORT[$i]}
         user_name=${USERNAMES[$i]}
         pass_word=${PASSWORDS[$i]}
-        echo "IP:$ip    User:$user_name   Password:$pass_word"
+        echo "IP:$ip   Port:$port   User:$user_name   Password:$pass_word"
 
         TMP_FILE="./.id_rsa.pub.$ip.tmp"
         expect <<EOF
                 set timeout 180
-                spawn scp $user_name@$ip:~/.ssh/id_rsa.pub  $TMP_FILE
+                spawn scp -P $port $user_name@$ip:~/.ssh/id_rsa.pub  $TMP_FILE
                 expect {
                         "yes/no" { send "yes\n";exp_continue}     
                         "password" { send "$pass_word\n"}
@@ -103,13 +126,14 @@ done
 echo "#### [3] send local key to each host..."
 for ((i = 0; i < ${#HOSTSADDR[@]}; i++)); do
         ip=${HOSTSADDR[$i]}
+        port=${HOSTSPORT[$i]}
         user_name=${USERNAMES[$i]}
         pass_word=${PASSWORDS[$i]}
-        echo "IP:$ip    User:$user_name   Password:$pass_word"
+        echo "IP:$ip   Port:$port   User:$user_name   Password:$pass_word"
 
-        CMD="scp /root/.ssh/authorized_keys root@$ip:/root/.ssh/authorized_keys"
+        CMD="scp -P $port /root/.ssh/authorized_keys root@$ip:/root/.ssh/authorized_keys"
         if [ "$user_name" != "root" ]; then
-                CMD="scp /home/$user_name/.ssh/authorized_keys $user_name@$ip:/home/$user_name/.ssh/authorized_keys"
+                CMD="scp -P $port /home/$user_name/.ssh/authorized_keys $user_name@$ip:/home/$user_name/.ssh/authorized_keys"
         fi
 
         expect <<EOF

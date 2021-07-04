@@ -19,7 +19,5 @@ source ./sbin/config_env_tools.sh
 source ./sbin/config_file_reader.sh $TXT_FILE_NAME
 # 配置准备
 source ./sbin/auto_hosts_config.sh
-# ROOT免登录设置
-source ./sbin/auto_ssh_login.sh
 # Geenplum卸载
 ansible-playbook ./remove.yml -i $TMP_GP_ALL_IPS_FILE

@@ -1,7 +1,7 @@
 ---
 
 # greenplum 的版本h号(需要与files/目录下的rpm安装包对应)
-- version: "6.12.1"
+- version: "6.16.3"
 
 # greenplum的master节点的主机名称
 - greenplum_master_node_hostname: 'mdw'
@@ -18,7 +18,10 @@
 # greenplum数据库的数据目录位置(可根据实际物理磁盘挂载位置调整)
 - greenplum_data_directory: "/usr/local/gpdb/data"
 
-# - greenplum_admin_password: "gpadmin"
+# [从外部传入]账号gpadmin的密码
+# - greenplum_admin_password: "1qazXSW@"
+
+# [从外部传入]Greenplum软件RPM安装包的路径
 # - package_path: passed via the command line with: -e package_path=./greenplum-db-6.6.0-rhel7-x86_64.rpm
 
 # greenplum的segment节点上配置primary或mirror的实例个数

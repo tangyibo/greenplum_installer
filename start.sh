@@ -7,7 +7,7 @@
 ############################################
 
 # 使用说明
-print_usage(){
+function print_usage(){
     echo ""
     echo -e "Usage : $0 [account] [option]"
     echo -e "\t account \t -- file name for ip-account-password "

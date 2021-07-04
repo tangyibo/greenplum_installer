@@ -54,7 +54,7 @@ fi
 #done
 
 # 判断并利用yum安装依赖
-package=(epel-release expect python ansible)
+package=(epel-release python ansible)
 for p in ${package[@]}; do
   package_install $p
 done
